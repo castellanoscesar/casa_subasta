@@ -1,25 +1,37 @@
 defmodule AuctionCoordinator do
   def start do
-    pid = spawn(fn -> loop(%{next_id: 1, auctions: %{}}) end)
-    Process.register(pid, :auction_coordinator)
-    pid
+  case Process.whereis(:auction_coordinator) do
+    nil ->
+      pid = spawn(fn -> loop(%{next_id: 1, auctions: %{}}) end)
+      Process.register(pid, :auction_coordinator)
+      pid
+
+    pid ->
+      pid
+  end
   end
 
   defp loop(state) do
     receive do
       {:create, product, initial_price, duration, caller} ->
-        id = state.next_id
-        auction = Auction.new(id, product, initial_price, duration)
-        pid = AuctionServer.start(auction)
+        case Auction.new(state.next_id, product, initial_price, duration) do
+          {:ok, auction} ->
+            id = auction.id
+            pid = AuctionServer.start(auction)
 
-        new_state = %{
-          state
-          | next_id: id + 1,
-            auctions: Map.put(state.auctions, id, pid)
-        }
+            new_state = %{
+              state
+              | next_id: id + 1,
+                auctions: Map.put(state.auctions, id, pid)
+            }
 
-        send(caller, {:ok, id})
-        loop(new_state)
+            send(caller, {:ok, id})
+            loop(new_state)
+
+          {:error, reason} ->
+            send(caller, {:error, reason})
+            loop(state)
+        end
 
       {:find, id, caller} ->
         case Map.get(state.auctions, id) do
