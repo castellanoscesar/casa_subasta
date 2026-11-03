@@ -11,19 +11,6 @@ defmodule Auction do
     final_price: nil
   ]
 
- # def new(id, product, initial_price, duration) do
- #   deadline = System.system_time(:millisecond) + duration
-
- #   %Auction{
- #     id: id,
- #     product: product,
- #     initial_price: initial_price,
- #     duration: duration,
- #     deadline: deadline,
- #     status: :active
- #   }
- # end
-
 def new(id, product, initial_price, duration) do
   cond do
     product == "" ->
