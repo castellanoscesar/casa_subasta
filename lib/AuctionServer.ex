@@ -31,8 +31,16 @@ defmodule AuctionServer do
         end
 
       {:status, caller} ->
-        send(caller, {:status, auction})
-        loop(auction)
+        cond do
+          auction.status == :active and System.system_time(:millisecond) >= auction.deadline ->
+            {:ok, closed} = Auction.close(auction)
+            send(caller, {:status, closed})
+            loop(closed)
+
+          true ->
+            send(caller, {:status, auction})
+            loop(auction)
+        end
     end
   end
 end
