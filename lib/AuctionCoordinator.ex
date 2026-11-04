@@ -1,14 +1,14 @@
 defmodule AuctionCoordinator do
   def start do
-  case Process.whereis(:auction_coordinator) do
-    nil ->
-      pid = spawn(fn -> loop(%{next_id: 1, auctions: %{}}) end)
-      Process.register(pid, :auction_coordinator)
-      pid
+    case Process.whereis(:auction_coordinator) do
+      nil ->
+        pid = spawn(fn -> loop(%{next_id: 1, auctions: %{}}) end)
+        Process.register(pid, :auction_coordinator)
+        pid
 
-    pid ->
-      pid
-  end
+      pid ->
+        pid
+    end
   end
 
   defp loop(state) do
@@ -57,7 +57,6 @@ defmodule AuctionCoordinator do
           end)
           # se elimina los nil y quedan las subastas activas
           |> Enum.reject(fn item -> is_nil(item) end)
-
 
         send(caller, {:ok, active})
         loop(state)

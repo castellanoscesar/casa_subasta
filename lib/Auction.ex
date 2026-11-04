@@ -11,32 +11,31 @@ defmodule Auction do
     final_price: nil
   ]
 
-def new(id, product, initial_price, duration) do
-  cond do
-    product == "" ->
-      {:error, :invalid_product}
+  def new(id, product, initial_price, duration) do
+    cond do
+      product == "" ->
+        {:error, :invalid_product}
 
-    initial_price <= 0 ->
-      {:error, :invalid_price}
+      initial_price <= 0 ->
+        {:error, :invalid_price}
 
-    duration <= 0 ->
-      {:error, :invalid_duration}
+      duration <= 0 ->
+        {:error, :invalid_duration}
 
-    true ->
-      deadline = System.system_time(:millisecond) + duration
+      true ->
+        deadline = System.system_time(:millisecond) + duration
 
-      {:ok, %Auction{
-        id: id,
-        product: product,
-        initial_price: initial_price,
-        duration: duration,
-        deadline: deadline,
-        status: :active
-      }}
+        {:ok,
+         %Auction{
+           id: id,
+           product: product,
+           initial_price: initial_price,
+           duration: duration,
+           deadline: deadline,
+           status: :active
+         }}
+    end
   end
-end
-
-
 
   def start(%Auction{} = auction, user, amount) do
     cond do
@@ -75,8 +74,6 @@ end
         Enum.max(amounts)
     end
   end
-
-
 
   def close(%Auction{} = auction) do
     case auction.status do
