@@ -23,7 +23,7 @@ defmodule Auction do
         {:error, :invalid_duration}
 
       true ->
-        deadline = System.system_time(:millisecond) + duration
+        deadline = System.monotonic_time(:millisecond) + duration
 
         {:ok,
          %Auction{
@@ -42,7 +42,7 @@ defmodule Auction do
       auction.status != :active ->
         {:error, :auction_not_active}
 
-      auction.deadline < System.system_time(:millisecond) ->
+      auction.deadline < System.monotonic_time(:millisecond) ->
         {:error, :auction_closed}
 
       amount <= current_reference(auction) ->
